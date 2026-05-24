@@ -3,10 +3,32 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import psycopg2
 import psycopg2.extras
 import os
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 
 DATABASE_URL = os.environ.get('DATABASE_URL', '').replace('postgres://', 'postgresql://')
+GMAIL_USER = os.environ.get('GMAIL_USER', '')
+GMAIL_PASSWORD = os.environ.get('GMAIL_PASSWORD', '')
+
+def envoyer_email(sujet, corps):
+    if not GMAIL_USER or not GMAIL_PASSWORD:
+        return
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = GMAIL_USER
+        msg['To'] = GMAIL_USER
+        msg['Subject'] = sujet
+        msg.attach(MIMEText(corps, 'html'))
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(GMAIL_USER, GMAIL_PASSWORD)
+        server.send_message(msg)
+        server.quit()
+    except Exception as e:
+        print('Erreur email:', e)
 
 def get_db():
     conn = psycopg2.connect(DATABASE_URL)
@@ -146,6 +168,20 @@ def passer_commande():
     conn.commit()
     cur.close()
     conn.close()
+
+    # Envoi email
+    items_html = ''.join(['<li>' + i['nom'] + ' x' + str(i['quantite']) + ' = ' + str(i['prix'] * i['quantite']) + ' FCFA</li>' for i in data['items']])
+    corps = '''
+    <h2>🛍️ Nouvelle commande #''' + str(commande_id) + '''</h2>
+    <p><b>Client :</b> ''' + data['nom_client'] + '''</p>
+    <p><b>Téléphone :</b> ''' + data['telephone'] + '''</p>
+    <p><b>Adresse :</b> ''' + data['adresse'] + '''</p>
+    <h3>Articles :</h3>
+    <ul>''' + items_html + '''</ul>
+    <p><b>Total : ''' + str(data['total']) + ''' FCFA</b></p>
+    '''
+    envoyer_email('🛍️ Nouvelle commande #' + str(commande_id) + ' - Rahmane_Shop', corps)
+
     return jsonify({"message": "Commande passee", "id": commande_id}), 201
 
 @app.route('/commandes', methods=['GET'])
