@@ -4,6 +4,7 @@ import psycopg2
 import psycopg2.extras
 import os
 import smtplib
+import random
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -13,13 +14,15 @@ DATABASE_URL = os.environ.get('DATABASE_URL', '').replace('postgres://', 'postgr
 GMAIL_USER = os.environ.get('GMAIL_USER', '')
 GMAIL_PASSWORD = os.environ.get('GMAIL_PASSWORD', '')
 
-def envoyer_email(sujet, corps):
+codes_verification = {}
+
+def envoyer_email(destinataire, sujet, corps):
     if not GMAIL_USER or not GMAIL_PASSWORD:
         return
     try:
         msg = MIMEMultipart()
         msg['From'] = GMAIL_USER
-        msg['To'] = GMAIL_USER
+        msg['To'] = destinataire
         msg['Subject'] = sujet
         msg.attach(MIMEText(corps, 'html'))
         server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -80,13 +83,13 @@ def init_db():
     cur.close()
     conn.close()
 
-@app.route('/inscription-page')
-def page_inscription():
-    return render_template('inscription.html')
-
 @app.route('/')
 def accueil():
     return render_template('index.html')
+
+@app.route('/inscription-page')
+def page_inscription():
+    return render_template('inscription.html')
 
 @app.route('/produits')
 def liste_produits():
@@ -149,13 +152,31 @@ def login():
     data = request.get_json()
     conn = get_db()
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute('SELECT * FROM users WHERE username = %s', (data['username'],))
+    cur.execute('SELECT * FROM users WHERE username = %s OR email = %s',
+                (data['username'], data['username']))
     user = cur.fetchone()
     cur.close()
     conn.close()
     if user and check_password_hash(user['password'], data['password']):
-        return jsonify({"message": "Connexion reussie", "role": user['role'], "username": user['username']}), 200
+        if user['role'] == 'admin':
+            return jsonify({"message": "Connexion reussie", "role": "admin", "username": user['username']}), 200
+        # Envoyer code de verification
+        code = str(random.randint(100000, 999999))
+        codes_verification[user['email']] = code
+        envoyer_email(user['email'], 'Code de verification - Rahmane_Shop',
+                      '<h2>Votre code de verification</h2><p style="font-size:30px;font-weight:bold;color:#667eea">' + code + '</p><p>Ce code expire dans 5 minutes.</p>')
+        return jsonify({"message": "code_envoye", "email": user['email'], "username": user['username']}), 200
     return jsonify({"erreur": "Identifiants incorrects"}), 401
+
+@app.route('/verifier-code', methods=['POST'])
+def verifier_code():
+    data = request.get_json()
+    email = data['email']
+    code = data['code']
+    if email in codes_verification and codes_verification[email] == code:
+        del codes_verification[email]
+        return jsonify({"message": "Connexion reussie", "role": "client"}), 200
+    return jsonify({"erreur": "Code incorrect"}), 401
 
 @app.route('/inscription', methods=['POST'])
 def inscription():
@@ -193,7 +214,7 @@ def passer_commande():
     conn.close()
     items_html = ''.join(['<li>' + i['nom'] + ' x' + str(i['quantite']) + ' = ' + str(i['prix'] * i['quantite']) + ' FCFA</li>' for i in data['items']])
     corps = '<h2>Nouvelle commande #' + str(commande_id) + '</h2><p><b>Client :</b> ' + data['nom_client'] + '</p><p><b>Tel :</b> ' + data['telephone'] + '</p><p><b>Adresse :</b> ' + data['adresse'] + '</p><ul>' + items_html + '</ul><p><b>Total : ' + str(data['total']) + ' FCFA</b></p>'
-    envoyer_email('Nouvelle commande #' + str(commande_id) + ' - Rahmane_Shop', corps)
+    envoyer_email(GMAIL_USER, 'Nouvelle commande #' + str(commande_id) + ' - Rahmane_Shop', corps)
     return jsonify({"message": "Commande passee", "id": commande_id}), 201
 
 @app.route('/commandes', methods=['GET'])
