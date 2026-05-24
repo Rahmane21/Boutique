@@ -46,8 +46,9 @@ def init_db():
     cur.execute('''CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         username TEXT NOT NULL UNIQUE,
+        email TEXT,
         password TEXT NOT NULL,
-        role TEXT NOT NULL DEFAULT 'admin'
+        role TEXT NOT NULL DEFAULT 'client'
     )''')
     cur.execute('''CREATE TABLE IF NOT EXISTS commandes (
         id SERIAL PRIMARY KEY,
@@ -70,14 +71,18 @@ def init_db():
         cur.execute("INSERT INTO produits (nom, prix, stock) VALUES ('Telephone', 150000, 10)")
         cur.execute("INSERT INTO produits (nom, prix, stock) VALUES ('Ecouteurs', 25000, 5)")
         cur.execute("INSERT INTO produits (nom, prix, stock) VALUES ('Chargeur', 8000, 20)")
-    cur.execute('SELECT COUNT(*) FROM users')
+    cur.execute("SELECT COUNT(*) FROM users WHERE role='admin'")
     if cur.fetchone()[0] == 0:
         mot_de_passe_hash = generate_password_hash('admin123')
-        cur.execute("INSERT INTO users (username, password, role) VALUES ('admin', %s, 'admin')",
-                    (mot_de_passe_hash,))
+        cur.execute("INSERT INTO users (username, email, password, role) VALUES ('admin', %s, %s, 'admin')",
+                    (GMAIL_USER, mot_de_passe_hash,))
     conn.commit()
     cur.close()
     conn.close()
+
+@app.route('/inscription-page')
+def page_inscription():
+    return render_template('inscription.html')
 
 @app.route('/')
 def accueil():
@@ -149,8 +154,26 @@ def login():
     cur.close()
     conn.close()
     if user and check_password_hash(user['password'], data['password']):
-        return jsonify({"message": "Connexion reussie", "role": user['role']}), 200
+        return jsonify({"message": "Connexion reussie", "role": user['role'], "username": user['username']}), 200
     return jsonify({"erreur": "Identifiants incorrects"}), 401
+
+@app.route('/inscription', methods=['POST'])
+def inscription():
+    data = request.get_json()
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        mot_de_passe_hash = generate_password_hash(data['password'])
+        cur.execute("INSERT INTO users (username, email, password, role) VALUES (%s, %s, %s, 'client')",
+                    (data['username'], data['email'], mot_de_passe_hash))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return jsonify({"message": "Inscription reussie"}), 201
+    except Exception as e:
+        cur.close()
+        conn.close()
+        return jsonify({"erreur": "Nom d'utilisateur deja pris"}), 400
 
 @app.route('/commandes', methods=['POST'])
 def passer_commande():
@@ -168,20 +191,9 @@ def passer_commande():
     conn.commit()
     cur.close()
     conn.close()
-
-    # Envoi email
     items_html = ''.join(['<li>' + i['nom'] + ' x' + str(i['quantite']) + ' = ' + str(i['prix'] * i['quantite']) + ' FCFA</li>' for i in data['items']])
-    corps = '''
-    <h2>🛍️ Nouvelle commande #''' + str(commande_id) + '''</h2>
-    <p><b>Client :</b> ''' + data['nom_client'] + '''</p>
-    <p><b>Téléphone :</b> ''' + data['telephone'] + '''</p>
-    <p><b>Adresse :</b> ''' + data['adresse'] + '''</p>
-    <h3>Articles :</h3>
-    <ul>''' + items_html + '''</ul>
-    <p><b>Total : ''' + str(data['total']) + ''' FCFA</b></p>
-    '''
-    envoyer_email('🛍️ Nouvelle commande #' + str(commande_id) + ' - Rahmane_Shop', corps)
-
+    corps = '<h2>Nouvelle commande #' + str(commande_id) + '</h2><p><b>Client :</b> ' + data['nom_client'] + '</p><p><b>Tel :</b> ' + data['telephone'] + '</p><p><b>Adresse :</b> ' + data['adresse'] + '</p><ul>' + items_html + '</ul><p><b>Total : ' + str(data['total']) + ' FCFA</b></p>'
+    envoyer_email('Nouvelle commande #' + str(commande_id) + ' - Rahmane_Shop', corps)
     return jsonify({"message": "Commande passee", "id": commande_id}), 201
 
 @app.route('/commandes', methods=['GET'])

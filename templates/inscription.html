@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inscription - Rahmane_Shop</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea, #764ba2); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .card { background: white; padding: 40px; border-radius: 20px; width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .logo { text-align: center; font-size: 40px; margin-bottom: 10px; }
+        h2 { text-align: center; color: #764ba2; margin-bottom: 30px; }
+        input { width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; margin-bottom: 15px; outline: none; }
+        input:focus { border-color: #667eea; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; background: linear-gradient(135deg, #667eea, #764ba2); color: white; margin-bottom: 15px; }
+        .btn:hover { opacity: 0.9; }
+        .lien { text-align: center; color: #999; font-size: 14px; }
+        .lien a { color: #667eea; text-decoration: none; font-weight: bold; }
+        #msg { text-align: center; margin-bottom: 15px; font-size: 14px; }
+        .erreur { color: red; }
+        .succes { color: green; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">🛍️</div>
+        <h2>Créer un compte</h2>
+        <p id="msg"></p>
+        <input id="username" type="text" placeholder="Nom d'utilisateur">
+        <input id="email" type="email" placeholder="Email">
+        <input id="password" type="password" placeholder="Mot de passe">
+        <input id="confirm" type="password" placeholder="Confirmer le mot de passe">
+        <button class="btn" onclick="sInscrire()">S'inscrire</button>
+        <p class="lien">Déjà un compte ? <a href="/">Se connecter</a></p>
+    </div>
+
+    <script>
+        function sInscrire() {
+            let username = document.getElementById('username').value;
+            let email = document.getElementById('email').value;
+            let password = document.getElementById('password').value;
+            let confirm = document.getElementById('confirm').value;
+            let msg = document.getElementById('msg');
+
+            if (!username || !email || !password || !confirm) {
+                msg.className = 'erreur';
+                msg.innerText = 'Remplissez tous les champs !';
+                return;
+            }
+            if (password !== confirm) {
+                msg.className = 'erreur';
+                msg.innerText = 'Les mots de passe ne correspondent pas !';
+                return;
+            }
+
+            fetch('/inscription', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, email, password})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.erreur) {
+                    msg.className = 'erreur';
+                    msg.innerText = data.erreur;
+                } else {
+                    msg.className = 'succes';
+                    msg.innerText = 'Compte créé ! Redirection...';
+                    setTimeout(() => window.location.href = '/', 2000);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
