@@ -4,40 +4,33 @@
     <title>Ma Boutique</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; background: #f0f2f5; }
-
-        /* NAVBAR */
+        body { font-family: Arial, sans-serif; background: #f0f2f5; }
         nav { background: linear-gradient(135deg, #667eea, #764ba2); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         nav h1 { color: white; font-size: 24px; }
+        .nav-btns { display: flex; gap: 10px; }
         .panier-nav { background: white; color: #764ba2; padding: 8px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; border: none; font-size: 15px; }
-
-        /* CONTENU */
         .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
-
-        /* LOGIN */
         #login-form { background: white; padding: 30px; border-radius: 15px; max-width: 400px; margin: 30px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         #login-form h2 { color: #764ba2; margin-bottom: 20px; text-align: center; }
         #login-msg { color: red; text-align: center; margin-top: 10px; }
-
-        /* ADMIN */
         #admin { background: linear-gradient(135deg, #f093fb, #f5576c); padding: 25px; border-radius: 15px; margin-bottom: 30px; color: white; display: none; }
         #admin h2 { margin-bottom: 15px; }
         .admin-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-
-        /* INPUTS */
-        input { padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; outline: none; transition: border 0.3s; }
+        #commandes-panel { background: white; padding: 25px; border-radius: 15px; margin-bottom: 30px; display: none; }
+        #commandes-panel h2 { color: #764ba2; margin-bottom: 15px; }
+        .commande-card { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #667eea; }
+        .commande-card h4 { color: #333; margin-bottom: 5px; }
+        .commande-card p { color: #666; font-size: 14px; }
+        .statut-select { padding: 5px 10px; border-radius: 5px; border: 1px solid #ddd; margin-top: 5px; }
+        input { padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; outline: none; }
         input:focus { border-color: #667eea; }
-
-        /* BOUTONS */
-        .btn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: bold; transition: transform 0.2s, box-shadow 0.2s; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .btn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: bold; transition: transform 0.2s; }
+        .btn:hover { transform: translateY(-2px); }
         .btn-violet { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
         .btn-vert { background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; }
         .btn-rouge { background: linear-gradient(135deg, #f5576c, #f093fb); color: white; }
         .btn-orange { background: linear-gradient(135deg, #f7971e, #ffd200); color: white; }
         .btn-gris { background: #e0e0e0; color: #333; }
-
-        /* PRODUITS */
         .produits-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
         .produit { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.08); transition: transform 0.3s; }
         .produit:hover { transform: translateY(-5px); }
@@ -48,34 +41,35 @@
         .produit-prix { font-size: 22px; font-weight: bold; color: #667eea; margin-bottom: 5px; }
         .produit-stock { color: #999; font-size: 13px; margin-bottom: 15px; }
         .produit-actions { display: flex; flex-direction: column; gap: 8px; }
-
-        /* PANIER MODAL */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; }
-        .panier-modal { position: fixed; top: 0; right: 0; width: 380px; height: 100%; background: white; z-index: 101; padding: 30px; overflow-y: auto; transform: translateX(100%); transition: transform 0.3s; box-shadow: -5px 0 30px rgba(0,0,0,0.2); }
-        .panier-modal.ouvert { transform: translateX(0); }
+        .modal { position: fixed; top: 0; right: 0; width: 420px; height: 100%; background: white; z-index: 101; padding: 30px; overflow-y: auto; transform: translateX(100%); transition: transform 0.3s; box-shadow: -5px 0 30px rgba(0,0,0,0.2); }
+        .modal.ouvert { transform: translateX(0); }
         .overlay.ouvert { display: block; }
-        .panier-modal h2 { color: #764ba2; margin-bottom: 20px; }
+        .modal h2 { color: #764ba2; margin-bottom: 20px; }
         .panier-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f0f0f0; }
-        .panier-item-nom { font-weight: bold; color: #333; }
-        .panier-item-prix { color: #667eea; font-weight: bold; }
         .panier-total { margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 15px; color: white; text-align: center; font-size: 20px; font-weight: bold; }
         .badge { background: #f5576c; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; margin-left: 5px; }
-
         .titre-section { font-size: 22px; font-weight: bold; color: #333; margin-bottom: 5px; }
         .sous-titre { color: #999; margin-bottom: 20px; }
+        .form-commande { margin-top: 20px; }
+        .form-commande input { width: 100%; margin-bottom: 10px; }
+        .form-commande h3 { color: #764ba2; margin-bottom: 15px; }
+        .statut-badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; }
+        .statut-attente { background: #fff3cd; color: #856404; }
+        .statut-confirme { background: #d4edda; color: #155724; }
+        .statut-livre { background: #cce5ff; color: #004085; }
     </style>
 </head>
 <body>
-
-    <!-- NAVBAR -->
     <nav>
         <h1>🛍️ Ma Boutique</h1>
-        <button class="panier-nav" onclick="togglePanier()">🛒 Panier <span class="badge" id="badge">0</span></button>
+        <div class="nav-btns">
+            <button class="panier-nav" id="btn-commandes" style="display:none" onclick="toggleCommandes()">📋 Commandes</button>
+            <button class="panier-nav" onclick="togglePanier()">🛒 Panier <span class="badge" id="badge">0</span></button>
+        </div>
     </nav>
 
     <div class="container">
-
-        <!-- LOGIN -->
         <div id="login-form">
             <h2>🔐 Connexion Admin</h2>
             <input id="username" type="text" placeholder="Nom d'utilisateur" style="width:100%;margin-bottom:10px"><br>
@@ -84,7 +78,6 @@
             <p id="login-msg"></p>
         </div>
 
-        <!-- ADMIN -->
         <div id="admin">
             <h2>⚙️ Panel Admin</h2>
             <div class="admin-form">
@@ -95,22 +88,32 @@
             </div>
         </div>
 
-        <!-- PRODUITS -->
+        <div id="commandes-panel">
+            <h2>📋 Commandes reçues</h2>
+            <div id="liste-commandes"></div>
+        </div>
+
         <p class="titre-section">Nos Produits</p>
         <p class="sous-titre">Découvrez notre sélection</p>
         <div class="produits-grid" id="produits"></div>
     </div>
 
-    <!-- OVERLAY -->
-    <div class="overlay" id="overlay" onclick="togglePanier()"></div>
+    <div class="overlay" id="overlay" onclick="fermerTout()"></div>
 
-    <!-- PANIER -->
-    <div class="panier-modal" id="panier-modal">
+    <div class="modal" id="panier-modal">
         <h2>🛒 Mon Panier</h2>
         <div id="liste-panier"></div>
         <div class="panier-total">Total : <span id="total">0</span> FCFA</div>
-        <button class="btn btn-rouge" style="width:100%;margin-top:15px" onclick="viderPanier()">🗑️ Vider le panier</button>
-        <button class="btn btn-gris" style="width:100%;margin-top:10px" onclick="togglePanier()">Fermer</button>
+        <div class="form-commande" id="form-commande" style="display:none">
+            <h3>📦 Informations de livraison</h3>
+            <input id="nom-client" type="text" placeholder="Votre nom complet">
+            <input id="telephone" type="text" placeholder="Téléphone">
+            <input id="adresse" type="text" placeholder="Adresse de livraison">
+            <button class="btn btn-vert" style="width:100%;margin-top:10px" onclick="passerCommande()">✅ Confirmer la commande</button>
+        </div>
+        <button class="btn btn-violet" style="width:100%;margin-top:15px" onclick="toggleFormCommande()" id="btn-commander">📦 Commander</button>
+        <button class="btn btn-rouge" style="width:100%;margin-top:10px" onclick="viderPanier()">🗑️ Vider le panier</button>
+        <button class="btn btn-gris" style="width:100%;margin-top:10px" onclick="fermerTout()">Fermer</button>
     </div>
 
     <script>
@@ -134,7 +137,10 @@
                     estAdmin = true;
                     document.getElementById('login-form').style.display = 'none';
                     document.getElementById('admin').style.display = 'block';
+                    document.getElementById('btn-commandes').style.display = 'block';
+                    document.getElementById('commandes-panel').style.display = 'block';
                     chargerProduits();
+                    chargerCommandes();
                 }
             });
         }
@@ -145,10 +151,8 @@
             .then(data => {
                 let html = '';
                 data.forEach((p, i) => {
-                    html += '<div class="produit">';
-                    html += '<div class="produit-header"><div class="produit-emoji">' + emojis[i % emojis.length] + '</div></div>';
-                    html += '<div class="produit-body">';
-                    html += '<div class="produit-nom">' + p.nom + '</div>';
+                    html += '<div class="produit"><div class="produit-header"><div class="produit-emoji">' + emojis[i % emojis.length] + '</div></div>';
+                    html += '<div class="produit-body"><div class="produit-nom">' + p.nom + '</div>';
                     html += '<div class="produit-prix">' + p.prix.toLocaleString() + ' FCFA</div>';
                     html += '<div class="produit-stock">Stock : ' + p.stock + ' unités</div>';
                     html += '<div class="produit-actions">';
@@ -161,6 +165,43 @@
                 });
                 document.getElementById('produits').innerHTML = html;
             });
+        }
+
+        function chargerCommandes() {
+            fetch('/commandes')
+            .then(r => r.json())
+            .then(data => {
+                let html = '';
+                if (data.length === 0) { html = '<p style="color:#999">Aucune commande pour le moment.</p>'; }
+                data.forEach(c => {
+                    html += '<div class="commande-card">';
+                    html += '<h4>Commande #' + c.id + ' — ' + c.nom_client + '</h4>';
+                    html += '<p>📞 ' + c.telephone + ' | 📍 ' + c.adresse + '</p>';
+                    html += '<p>💰 Total : ' + c.total.toLocaleString() + ' FCFA</p>';
+                    html += '<p>📅 ' + new Date(c.date_commande).toLocaleString() + '</p>';
+                    html += '<select class="statut-select" onchange="modifierStatut(' + c.id + ', this.value)">';
+                    html += '<option value="en attente"' + (c.statut === 'en attente' ? ' selected' : '') + '>⏳ En attente</option>';
+                    html += '<option value="confirme"' + (c.statut === 'confirme' ? ' selected' : '') + '>✅ Confirmé</option>';
+                    html += '<option value="livre"' + (c.statut === 'livre' ? ' selected' : '') + '>🚚 Livré</option>';
+                    html += '</select>';
+                    html += '</div>';
+                });
+                document.getElementById('liste-commandes').innerHTML = html;
+            });
+        }
+
+        function modifierStatut(id, statut) {
+            fetch('/commandes/' + id + '/statut', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({statut})
+            });
+        }
+
+        function toggleCommandes() {
+            let panel = document.getElementById('commandes-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            chargerCommandes();
         }
 
         function ajouterProduit() {
@@ -182,8 +223,7 @@
 
         function supprimerProduit(id) {
             if (!confirm('Supprimer ce produit ?')) return;
-            fetch('/produits/supprimer/' + id, {method: 'DELETE'})
-            .then(() => chargerProduits());
+            fetch('/produits/supprimer/' + id, {method: 'DELETE'}).then(() => chargerProduits());
         }
 
         function modifierProduit(id, nom, prix, stock) {
@@ -216,11 +256,37 @@
             afficherPanier();
         }
 
+        function toggleFormCommande() {
+            let form = document.getElementById('form-commande');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function passerCommande() {
+            let nom_client = document.getElementById('nom-client').value;
+            let telephone = document.getElementById('telephone').value;
+            let adresse = document.getElementById('adresse').value;
+            if (!nom_client || !telephone || !adresse) { alert('Remplissez tous les champs !'); return; }
+            if (panier.length === 0) { alert('Votre panier est vide !'); return; }
+            let total = panier.reduce((sum, p) => sum + p.prix * p.quantite, 0);
+            let items = panier.map(p => ({nom: p.nom, quantite: p.quantite, prix: p.prix}));
+            fetch('/commandes', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({nom_client, telephone, adresse, total, items})
+            })
+            .then(r => r.json())
+            .then(data => {
+                alert('✅ Commande #' + data.id + ' passée avec succès !');
+                viderPanier();
+                fermerTout();
+            });
+        }
+
         function afficherPanier() {
             let html = '';
             let total = 0;
             panier.forEach(p => {
-                html += '<div class="panier-item"><div><div class="panier-item-nom">' + p.nom + '</div><div style="color:#999;font-size:13px">x' + p.quantite + '</div></div><div><div class="panier-item-prix">' + (p.prix * p.quantite).toLocaleString() + ' FCFA</div><button class="btn btn-rouge" style="padding:5px 10px;font-size:12px;margin-top:5px" onclick="supprimerArticle(' + p.id + ')">Retirer</button></div></div>';
+                html += '<div class="panier-item"><div><div style="font-weight:bold">' + p.nom + '</div><div style="color:#999;font-size:13px">x' + p.quantite + '</div></div><div><div style="color:#667eea;font-weight:bold">' + (p.prix * p.quantite).toLocaleString() + ' FCFA</div><button class="btn btn-rouge" style="padding:5px 10px;font-size:12px;margin-top:5px" onclick="supprimerArticle(' + p.id + ')">Retirer</button></div></div>';
                 total += p.prix * p.quantite;
             });
             if (panier.length === 0) html = '<p style="color:#999;text-align:center;margin-top:20px">Panier vide</p>';
@@ -232,6 +298,11 @@
         function togglePanier() {
             document.getElementById('panier-modal').classList.toggle('ouvert');
             document.getElementById('overlay').classList.toggle('ouvert');
+        }
+
+        function fermerTout() {
+            document.getElementById('panier-modal').classList.remove('ouvert');
+            document.getElementById('overlay').classList.remove('ouvert');
         }
 
         chargerProduits();

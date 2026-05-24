@@ -27,6 +27,22 @@ def init_db():
         password TEXT NOT NULL,
         role TEXT NOT NULL DEFAULT 'admin'
     )''')
+    cur.execute('''CREATE TABLE IF NOT EXISTS commandes (
+        id SERIAL PRIMARY KEY,
+        nom_client TEXT NOT NULL,
+        telephone TEXT NOT NULL,
+        adresse TEXT NOT NULL,
+        total INTEGER NOT NULL,
+        statut TEXT NOT NULL DEFAULT 'en attente',
+        date_commande TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )''')
+    cur.execute('''CREATE TABLE IF NOT EXISTS commande_items (
+        id SERIAL PRIMARY KEY,
+        commande_id INTEGER REFERENCES commandes(id),
+        produit_nom TEXT NOT NULL,
+        quantite INTEGER NOT NULL,
+        prix INTEGER NOT NULL
+    )''')
     cur.execute('SELECT COUNT(*) FROM produits')
     if cur.fetchone()[0] == 0:
         cur.execute("INSERT INTO produits (nom, prix, stock) VALUES ('Telephone', 150000, 10)")
@@ -113,6 +129,45 @@ def login():
     if user and check_password_hash(user['password'], data['password']):
         return jsonify({"message": "Connexion reussie", "role": user['role']}), 200
     return jsonify({"erreur": "Identifiants incorrects"}), 401
+
+@app.route('/commandes', methods=['POST'])
+def passer_commande():
+    data = request.get_json()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('''INSERT INTO commandes (nom_client, telephone, adresse, total)
+                   VALUES (%s, %s, %s, %s) RETURNING id''',
+                (data['nom_client'], data['telephone'], data['adresse'], data['total']))
+    commande_id = cur.fetchone()[0]
+    for item in data['items']:
+        cur.execute('''INSERT INTO commande_items (commande_id, produit_nom, quantite, prix)
+                       VALUES (%s, %s, %s, %s)''',
+                    (commande_id, item['nom'], item['quantite'], item['prix']))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({"message": "Commande passee", "id": commande_id}), 201
+
+@app.route('/commandes', methods=['GET'])
+def liste_commandes():
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute('SELECT * FROM commandes ORDER BY date_commande DESC')
+    commandes = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify([dict(c) for c in commandes])
+
+@app.route('/commandes/<int:id>/statut', methods=['PUT'])
+def modifier_statut(id):
+    data = request.get_json()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('UPDATE commandes SET statut=%s WHERE id=%s', (data['statut'], id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({"message": "Statut modifie"}), 200
 
 init_db()
 
