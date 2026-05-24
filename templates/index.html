@@ -10,9 +10,10 @@
         .nav-btns { display: flex; gap: 10px; }
         .panier-nav { background: white; color: #764ba2; padding: 8px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; border: none; font-size: 15px; }
         .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
-        #login-form { background: white; padding: 30px; border-radius: 15px; max-width: 400px; margin: 30px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        #login-form h2 { color: #764ba2; margin-bottom: 20px; text-align: center; }
-        #login-msg { color: red; text-align: center; margin-top: 10px; }
+        .card { background: white; padding: 30px; border-radius: 15px; max-width: 400px; margin: 30px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .card h2 { color: #764ba2; margin-bottom: 20px; text-align: center; }
+        .msg-erreur { color: red; text-align: center; margin-top: 10px; }
+        .msg-succes { color: green; text-align: center; margin-top: 10px; }
         #admin { background: linear-gradient(135deg, #f093fb, #f5576c); padding: 25px; border-radius: 15px; margin-bottom: 30px; color: white; display: none; }
         #admin h2 { margin-bottom: 15px; }
         .admin-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -22,9 +23,9 @@
         .commande-card h4 { color: #333; margin-bottom: 5px; }
         .commande-card p { color: #666; font-size: 14px; }
         .statut-select { padding: 5px 10px; border-radius: 5px; border: 1px solid #ddd; margin-top: 5px; }
-        input { padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; outline: none; }
+        input { padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; outline: none; width: 100%; margin-bottom: 10px; }
         input:focus { border-color: #667eea; }
-        .btn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: bold; transition: transform 0.2s; }
+        .btn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: bold; transition: transform 0.2s; width: 100%; margin-top: 5px; }
         .btn:hover { transform: translateY(-2px); }
         .btn-violet { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
         .btn-vert { background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; }
@@ -34,8 +35,7 @@
         .produits-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
         .produit { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.08); transition: transform 0.3s; }
         .produit:hover { transform: translateY(-5px); }
-        .produit-header { background: linear-gradient(135deg, #667eea, #764ba2); padding: 30px 20px; text-align: center; }
-        .produit-emoji { font-size: 50px; }
+        .produit-header { background: linear-gradient(135deg, #667eea, #764ba2); padding: 30px 20px; text-align: center; font-size: 50px; }
         .produit-body { padding: 20px; }
         .produit-nom { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 5px; }
         .produit-prix { font-size: 22px; font-weight: bold; color: #667eea; margin-bottom: 5px; }
@@ -51,13 +51,8 @@
         .badge { background: #f5576c; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; margin-left: 5px; }
         .titre-section { font-size: 22px; font-weight: bold; color: #333; margin-bottom: 5px; }
         .sous-titre { color: #999; margin-bottom: 20px; }
-        .form-commande { margin-top: 20px; }
         .form-commande input { width: 100%; margin-bottom: 10px; }
-        .form-commande h3 { color: #764ba2; margin-bottom: 15px; }
-        .statut-badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; }
-        .statut-attente { background: #fff3cd; color: #856404; }
-        .statut-confirme { background: #d4edda; color: #155724; }
-        .statut-livre { background: #cce5ff; color: #004085; }
+        .bienvenue { background: linear-gradient(135deg, #43e97b, #38f9d7); padding: 15px 25px; border-radius: 15px; margin-bottom: 20px; color: white; font-weight: bold; display: none; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
@@ -70,30 +65,50 @@
     </nav>
 
     <div class="container">
-        <div id="login-form">
-            <h2>🔐 Connexion Admin</h2>
-            <input id="username" type="text" placeholder="Nom d'utilisateur" style="width:100%;margin-bottom:10px"><br>
-            <input id="password" type="password" placeholder="Mot de passe" style="width:100%;margin-bottom:15px"><br>
-            <button class="btn btn-violet" style="width:100%" onclick="seConnecter()">Se connecter</button>
-            <p id="login-msg"></p>
-        <p style="text-align:center;margin-top:15px;color:#999">Pas de compte ? <a href="/inscription-page" style="color:#667eea;font-weight:bold">S'inscrire</a></p>
+
+        <!-- BIENVENUE -->
+        <div class="bienvenue" id="bienvenue">
+            <span id="bienvenue-msg"></span>
+            <button class="btn btn-gris" style="width:auto" onclick="seDeconnecter()">Se déconnecter</button>
         </div>
 
+        <!-- LOGIN -->
+        <div class="card" id="login-form">
+            <h2>🔐 Connexion</h2>
+            <input id="username" type="text" placeholder="Nom d'utilisateur ou email">
+            <input id="password" type="password" placeholder="Mot de passe">
+            <button class="btn btn-violet" onclick="seConnecter()">Se connecter</button>
+            <p id="login-msg" class="msg-erreur"></p>
+            <p style="text-align:center;margin-top:15px;color:#999">Pas de compte ? <a href="/inscription-page" style="color:#667eea;font-weight:bold">S'inscrire</a></p>
+        </div>
+
+        <!-- CODE VERIFICATION -->
+        <div class="card" id="code-form" style="display:none">
+            <h2>📧 Vérification</h2>
+            <p style="text-align:center;color:#999;margin-bottom:15px">Code envoyé sur votre email</p>
+            <input id="code" type="text" placeholder="Entrez le code à 6 chiffres">
+            <button class="btn btn-violet" onclick="verifierCode()">Vérifier</button>
+            <p id="code-msg" class="msg-erreur"></p>
+        </div>
+
+        <!-- ADMIN -->
         <div id="admin">
             <h2>⚙️ Panel Admin</h2>
             <div class="admin-form">
-                <input id="nom" type="text" placeholder="Nom du produit">
-                <input id="prix" type="number" placeholder="Prix (FCFA)">
-                <input id="stock" type="number" placeholder="Stock">
-                <button class="btn btn-vert" onclick="ajouterProduit()">➕ Ajouter</button>
+                <input id="nom" type="text" placeholder="Nom du produit" style="width:200px">
+                <input id="prix" type="number" placeholder="Prix (FCFA)" style="width:150px">
+                <input id="stock" type="number" placeholder="Stock" style="width:100px">
+                <button class="btn btn-vert" style="width:auto" onclick="ajouterProduit()">➕ Ajouter</button>
             </div>
         </div>
 
+        <!-- COMMANDES -->
         <div id="commandes-panel">
             <h2>📋 Commandes reçues</h2>
             <div id="liste-commandes"></div>
         </div>
 
+        <!-- PRODUITS -->
         <p class="titre-section">Nos Produits</p>
         <p class="sous-titre">Découvrez notre sélection</p>
         <div class="produits-grid" id="produits"></div>
@@ -105,26 +120,32 @@
         <h2>🛒 Mon Panier</h2>
         <div id="liste-panier"></div>
         <div class="panier-total">Total : <span id="total">0</span> FCFA</div>
-        <div class="form-commande" id="form-commande" style="display:none">
-            <h3>📦 Informations de livraison</h3>
+        <div id="form-commande" style="display:none;margin-top:20px">
+            <h3 style="color:#764ba2;margin-bottom:15px">📦 Livraison</h3>
             <input id="nom-client" type="text" placeholder="Votre nom complet">
             <input id="telephone" type="text" placeholder="Téléphone">
             <input id="adresse" type="text" placeholder="Adresse de livraison">
-            <button class="btn btn-vert" style="width:100%;margin-top:10px" onclick="passerCommande()">✅ Confirmer la commande</button>
+            <button class="btn btn-vert" onclick="passerCommande()">✅ Confirmer</button>
         </div>
-        <button class="btn btn-violet" style="width:100%;margin-top:15px" onclick="toggleFormCommande()" id="btn-commander">📦 Commander</button>
-        <button class="btn btn-rouge" style="width:100%;margin-top:10px" onclick="viderPanier()">🗑️ Vider le panier</button>
-        <button class="btn btn-gris" style="width:100%;margin-top:10px" onclick="fermerTout()">Fermer</button>
+        <button class="btn btn-violet" style="margin-top:15px" onclick="toggleFormCommande()" id="btn-commander">📦 Commander</button>
+        <button class="btn btn-rouge" style="margin-top:10px" onclick="viderPanier()">🗑️ Vider</button>
+        <button class="btn btn-gris" style="margin-top:10px" onclick="fermerTout()">Fermer</button>
     </div>
 
     <script>
         let panier = [];
         let estAdmin = false;
+        let estConnecte = false;
+        let emailVerif = '';
         const emojis = ['📱', '🎧', '🔌', '💻', '⌨️', '🖥️', '📷', '🎮'];
 
         function seConnecter() {
             let username = document.getElementById('username').value;
             let password = document.getElementById('password').value;
+            if (!username || !password) {
+                document.getElementById('login-msg').innerText = 'Remplissez tous les champs !';
+                return;
+            }
             fetch('/login', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -134,16 +155,65 @@
             .then(data => {
                 if (data.erreur) {
                     document.getElementById('login-msg').innerText = data.erreur;
-                } else {
-                    estAdmin = true;
+                } else if (data.role === 'admin') {
+                    connecterAdmin(data.username);
+                } else if (data.message === 'code_envoye') {
+                    emailVerif = data.email;
                     document.getElementById('login-form').style.display = 'none';
-                    document.getElementById('admin').style.display = 'block';
-                    document.getElementById('btn-commandes').style.display = 'block';
-                    document.getElementById('commandes-panel').style.display = 'block';
-                    chargerProduits();
-                    chargerCommandes();
+                    document.getElementById('code-form').style.display = 'block';
                 }
             });
+        }
+
+        function verifierCode() {
+            let code = document.getElementById('code').value;
+            fetch('/verifier-code', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email: emailVerif, code})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.erreur) {
+                    document.getElementById('code-msg').innerText = data.erreur;
+                } else {
+                    connecterClient();
+                }
+            });
+        }
+
+        function connecterAdmin(username) {
+            estAdmin = true;
+            estConnecte = true;
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('code-form').style.display = 'none';
+            document.getElementById('admin').style.display = 'block';
+            document.getElementById('btn-commandes').style.display = 'block';
+            document.getElementById('commandes-panel').style.display = 'block';
+            document.getElementById('bienvenue').style.display = 'flex';
+            document.getElementById('bienvenue-msg').innerText = '👑 Admin connecté : ' + username;
+            chargerCommandes();
+            chargerProduits();
+        }
+
+        function connecterClient() {
+            estConnecte = true;
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('code-form').style.display = 'none';
+            document.getElementById('bienvenue').style.display = 'flex';
+            document.getElementById('bienvenue-msg').innerText = '👋 Bienvenue !';
+            chargerProduits();
+        }
+
+        function seDeconnecter() {
+            estAdmin = false;
+            estConnecte = false;
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('admin').style.display = 'none';
+            document.getElementById('commandes-panel').style.display = 'none';
+            document.getElementById('btn-commandes').style.display = 'none';
+            document.getElementById('bienvenue').style.display = 'none';
+            chargerProduits();
         }
 
         function chargerProduits() {
@@ -152,12 +222,16 @@
             .then(data => {
                 let html = '';
                 data.forEach((p, i) => {
-                    html += '<div class="produit"><div class="produit-header"><div class="produit-emoji">' + emojis[i % emojis.length] + '</div></div>';
+                    html += '<div class="produit"><div class="produit-header">' + emojis[i % emojis.length] + '</div>';
                     html += '<div class="produit-body"><div class="produit-nom">' + p.nom + '</div>';
                     html += '<div class="produit-prix">' + p.prix.toLocaleString() + ' FCFA</div>';
-                    html += '<div class="produit-stock">Stock : ' + p.stock + ' unités</div>';
+                    html += '<div class="produit-stock">Stock : ' + p.stock + '</div>';
                     html += '<div class="produit-actions">';
-                    html += '<button class="btn btn-violet" onclick="ajouterPanier(' + p.id + ', \'' + p.nom + '\', ' + p.prix + ')">🛒 Ajouter au panier</button>';
+                    if (estConnecte) {
+                        html += '<button class="btn btn-violet" onclick="ajouterPanier(' + p.id + ', \'' + p.nom + '\', ' + p.prix + ')">🛒 Ajouter au panier</button>';
+                    } else {
+                        html += '<button class="btn btn-gris" onclick="alert(\'Connectez-vous pour acheter !\')">🔒 Connectez-vous</button>';
+                    }
                     if (estAdmin) {
                         html += '<button class="btn btn-orange" onclick="modifierProduit(' + p.id + ', \'' + p.nom + '\', ' + p.prix + ', ' + p.stock + ')">✏️ Modifier</button>';
                         html += '<button class="btn btn-rouge" onclick="supprimerProduit(' + p.id + ')">🗑️ Supprimer</button>';
@@ -173,19 +247,17 @@
             .then(r => r.json())
             .then(data => {
                 let html = '';
-                if (data.length === 0) { html = '<p style="color:#999">Aucune commande pour le moment.</p>'; }
+                if (data.length === 0) { html = '<p style="color:#999">Aucune commande.</p>'; }
                 data.forEach(c => {
                     html += '<div class="commande-card">';
                     html += '<h4>Commande #' + c.id + ' — ' + c.nom_client + '</h4>';
                     html += '<p>📞 ' + c.telephone + ' | 📍 ' + c.adresse + '</p>';
-                    html += '<p>💰 Total : ' + c.total.toLocaleString() + ' FCFA</p>';
-                    html += '<p>📅 ' + new Date(c.date_commande).toLocaleString() + '</p>';
+                    html += '<p>💰 ' + c.total.toLocaleString() + ' FCFA</p>';
                     html += '<select class="statut-select" onchange="modifierStatut(' + c.id + ', this.value)">';
                     html += '<option value="en attente"' + (c.statut === 'en attente' ? ' selected' : '') + '>⏳ En attente</option>';
                     html += '<option value="confirme"' + (c.statut === 'confirme' ? ' selected' : '') + '>✅ Confirmé</option>';
                     html += '<option value="livre"' + (c.statut === 'livre' ? ' selected' : '') + '>🚚 Livré</option>';
-                    html += '</select>';
-                    html += '</div>';
+                    html += '</select></div>';
                 });
                 document.getElementById('liste-commandes').innerHTML = html;
             });
@@ -252,10 +324,7 @@
             afficherPanier();
         }
 
-        function viderPanier() {
-            panier = [];
-            afficherPanier();
-        }
+        function viderPanier() { panier = []; afficherPanier(); }
 
         function toggleFormCommande() {
             let form = document.getElementById('form-commande');
@@ -267,7 +336,7 @@
             let telephone = document.getElementById('telephone').value;
             let adresse = document.getElementById('adresse').value;
             if (!nom_client || !telephone || !adresse) { alert('Remplissez tous les champs !'); return; }
-            if (panier.length === 0) { alert('Votre panier est vide !'); return; }
+            if (panier.length === 0) { alert('Panier vide !'); return; }
             let total = panier.reduce((sum, p) => sum + p.prix * p.quantite, 0);
             let items = panier.map(p => ({nom: p.nom, quantite: p.quantite, prix: p.prix}));
             fetch('/commandes', {
@@ -277,7 +346,7 @@
             })
             .then(r => r.json())
             .then(data => {
-                alert('✅ Commande #' + data.id + ' passée avec succès !');
+                alert('✅ Commande #' + data.id + ' passée !');
                 viderPanier();
                 fermerTout();
             });
@@ -287,7 +356,7 @@
             let html = '';
             let total = 0;
             panier.forEach(p => {
-                html += '<div class="panier-item"><div><div style="font-weight:bold">' + p.nom + '</div><div style="color:#999;font-size:13px">x' + p.quantite + '</div></div><div><div style="color:#667eea;font-weight:bold">' + (p.prix * p.quantite).toLocaleString() + ' FCFA</div><button class="btn btn-rouge" style="padding:5px 10px;font-size:12px;margin-top:5px" onclick="supprimerArticle(' + p.id + ')">Retirer</button></div></div>';
+                html += '<div class="panier-item"><div><b>' + p.nom + '</b><br><small>x' + p.quantite + '</small></div><div><b style="color:#667eea">' + (p.prix * p.quantite).toLocaleString() + ' FCFA</b><br><button class="btn btn-rouge" style="padding:5px;width:auto;margin-top:5px" onclick="supprimerArticle(' + p.id + ')">Retirer</button></div></div>';
                 total += p.prix * p.quantite;
             });
             if (panier.length === 0) html = '<p style="color:#999;text-align:center;margin-top:20px">Panier vide</p>';
